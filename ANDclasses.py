@@ -152,8 +152,8 @@ class BIRD:
         """
         allows user to print the contents of a BIRD-generated object
         """
-        return "Bird ID = {}, Sex = {}, Treatment = {}, Tissues = {}, Total Body Carotenoids = {}, Body Mass = {}"\
-                .format(self.__idbird, self.__sex, self.__treatment, self.__tissues, self.__totalbodycarot, self.__bodymass)
+        return "Bird ID = {}, Sex = {}, Treatment = {}, Tissues = {}, Total Body Carotenoids = {}, Body Mass = {}, Tissue Proportions = {}, Tissue Ratios = {}, Relative Proportions = {}"\
+                .format(self.__idbird, self.__sex, self.__treatment, self.__tissues, self.__totalbodycarot, self.__bodymass, self.__tissue_p, self.__tissue_r, self.__relative_p)
 
 
 
