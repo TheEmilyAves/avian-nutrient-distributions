@@ -34,20 +34,22 @@ def convertCarot(bird, alt_calc=False, list_except=None, except_files=None):
                             # for eye samples...
                             if tissue_type == "eye".lower() or tissue_type == "eyes".lower():
                                 if bird_id in except_files["eyeCalcExceptions.txt"]:
-                                    keto_vol = except_files["eyeCalcExceptions.txt"][bird_id][0]
-                                    xan_vol = except_files["eyeCalcExceptions.txt"][bird_id][1]
-                                    total_vol = eval(keto_vol) + eval(xan_vol)
-                                    mult_keto = 8 * (keto_vol / total_vol)
-                                    mult_xan = 8 * (xan_vol / total_vol)
+                                    keto_vol = float(except_files["eyeCalcExceptions.txt"][bird_id][0])
+                                    xan_vol = float(except_files["eyeCalcExceptions.txt"][bird_id][1])
+                                    total_vol = keto_vol + xan_vol
+                                    mult_keto = 4 * (total_vol / keto_vol)
+                                    mult_xan = 4 * (total_vol / xan_vol)
                                     if nutrient_type in ketocarotenoids:
                                         value = calcCarot(tissue_obj, nutrient_area, mult_keto)
                                     else:
                                         value = calcCarot(tissue_obj, nutrient_area, mult_xan)
+                                else:
+                                    value = calcCarot(tissue_obj, nutrient_area, mult=8)
                             # for liver samples...
                             elif tissue_type == "liver".lower():
                                 if bird_id in except_files["liverCalcExceptions.txt"]:
-                                    liver_volume = except_files["liverCalcExceptions.txt"][bird_id]
-                                    mult_liver = 4 * (eval(liver_volume) / 0.5)
+                                    liver_volume = float(except_files["liverCalcExceptions.txt"][bird_id][0])
+                                    mult_liver = 4 * (liver_volume / 0.5)
                                 else:
                                     mult_liver = 4 * (0.6 / 0.5)
                                 value = calcCarot(tissue_obj, nutrient_area, mult_liver)
@@ -73,7 +75,7 @@ def convertCarot(bird, alt_calc=False, list_except=None, except_files=None):
                         else:
                             value = calcCarot(tissue_obj, nutrient_area)
                 nutrients_ug[key] = value
-            tissue_obj.nutrients_ug = nutrients_ug
+            setattr(tissue_obj, "nutrients_ug", nutrients_ug)
 
 
 def calcCarot(tissue_obj, area, mult=4):
@@ -82,7 +84,7 @@ def calcCarot(tissue_obj, area, mult=4):
     the appropriate multiplier.
     """
     carot_ug_sample = (0.0005 * area + 0.1294) * mult
-    carot_ug_total = carot_ug_sample * (tissue_obj.mass_total / tissue_obj.mass_sample)
+    carot_ug_total = carot_ug_sample * (eval(tissue_obj.mass_total) / eval(tissue_obj.mass_sample))
     return carot_ug_total
 
 
@@ -91,6 +93,14 @@ def calcTotalCarot(bird):
     Calculates total carotenoids in each tissue and the total amount of 
     carotenoids in the whole bird, then adds as properties to the TISSUE and 
     BIRD classes, respectively.
+    
+    total_carot is a float number that represents the total amount (ug) 
+    of carotenoids in a given tissue.
+    
+    totalbodycarot (tbc) is a floating point number that represents the total
+    amount of carotenoids in all tissues analyzed in an individual bird in 
+    micrograms. used to calculate proportion of carotenoids in a given tissue 
+    relative to the whole individual.
     """
     for bird_id,bird_obj in bird.items():
         totalbodycarot = 0
@@ -98,9 +108,9 @@ def calcTotalCarot(bird):
             totaltissuecarot = 0
             for nutrient_type, nutrient_ug in tissue_obj.nutrients_ug.items():
                 totaltissuecarot += nutrient_ug
-            tissue_obj.total_carot = totaltissuecarot
+            setattr(tissue_obj, "total_carot", totaltissuecarot)
             totalbodycarot += totaltissuecarot
-        bird_obj.totalbodycarot = totalbodycarot
+        setattr(bird_obj, "totalbodycarot", totalbodycarot)
 
 
 def calcProp(bird):
@@ -114,7 +124,7 @@ def calcProp(bird):
             key = tissue_type
             value = tissue_obj.total_carot / bird_obj.totalbodycarot
             tissue_p[key] = value
-        bird_obj.tissue_p = tissue_p
+        setattr(bird_obj, "tissue_p", tissue_p)
 
 
 def calcTissueRatio(bird):
@@ -127,7 +137,7 @@ def calcTissueRatio(bird):
             key = tissue_type
             value = tissue_obj.mass_total / bird_obj.bodymass
             tissue_r[key] = value
-        bird_obj.tissue_r = tissue_r
+        setattr(bird_obj, "tissue_r", tissue_r)
 
 
 def calcRProp(bird):
@@ -140,14 +150,20 @@ def calcRProp(bird):
             key = tissue_type
             value = bird_obj.tissue_p[tissue_type] / bird_obj.tissue_r[tissue_type]
             relative_p[key] = value
-        bird_obj.relative_p = relative_p
+        setattr(bird_obj, "relative_p", relative_p)
 
 
 def calcCarotConc(bird):
     """
-    UNDER CONSTRUCTION
+    Calcultes concentration of all carotenoids in each tissue.
     """
-    pass
+    for bird_id,bird_obj in bird.items():
+        carot_conc = {}
+        for tissue_type, tissue_obj in bird_obj.tissues.items():
+            key = tissue_type
+            value = tissue_obj.total_carot / tissue_obj.mass_total
+            carot_conc[key] = value
+        setattr(bird_obj, "carot_conc", carot_conc)
 
 
 

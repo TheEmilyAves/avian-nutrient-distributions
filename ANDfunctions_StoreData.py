@@ -4,6 +4,12 @@ Functions necessary to read and store data for the Avian Nutrient Distributions 
 
 import ANDclasses as c
 import csv
+import sys
+import os
+
+sys.path.append("/Users/Emily/Documents/ASU/Programming/avian-nutrient-distributions/")
+this_folder = os.path.dirname(os.path.abspath(__file__))
+
 
 def getInput():
     """
@@ -23,6 +29,9 @@ def getInput():
     Note to self: include try-except loop for correct file types used (.csv)
     """
     infile_name = input("Enter name of input file: ")
+    my_file = os.path.join(this_folder, infile_name)
+    print()
+    outfile_name = input("Enter name of output file: ")
     print()
     response1 = input("Do you have calculation exceptions? ")
     if response1.lower() == "no":
@@ -41,10 +50,10 @@ def getInput():
                 list_except.append(response2)
             else:
                 still_entering = False
-    return infile_name, alt_calc, list_except
+    return my_file, outfile_name, alt_calc, list_except
 
 
-def readData(infile_name):
+def readData(my_file):
     """
     Get columns of data from infile (using infile_name)
     
@@ -55,7 +64,7 @@ def readData(infile_name):
     that are used as keys in the columns dictionary. The names are the same as the
     headings used in the infile_name.
     """  
-    with open(infile_name, "r") as csvfile:
+    with open(my_file, "r", encoding="utf-8") as csvfile:
         data = list(csv.reader(csvfile))
         columns = {}
         indexToName = {}
@@ -76,7 +85,7 @@ def readData(infile_name):
         return columns, indexToName         
 
 
-def readExceptions(list_except):
+def readExceptions(list_except, alt_calc=False):
     """
     Reads exception files, if there are any
     
@@ -89,22 +98,25 @@ def readExceptions(list_except):
     
     Note to self: add in file path to input options
     """
-    except_files = {}
-    for file in list_except:
-        except_file = {}
-        infile = open(file, "r")
-        for line in infile:
-            line_split = line.rstrip("\n").split(",")
-            value = []
-            for i in line_split:
-                if i == line_split[0]:
-                    key = i
-                else:
-                    value.append(i)
-            except_file[key] = value
-        except_files[file] = except_file
-    infile.close()
-    return except_files
+    if alt_calc == False:
+        pass
+    else:
+        except_files = {}
+        for file in list_except:
+            except_file = {}
+            infile = open(file, "r")
+            for line in infile:
+                line_split = line.rstrip("\n").split(",")
+                value = []
+                for i in line_split:
+                    if i == line_split[0]:
+                        key = i
+                    else:
+                        value.append(i)
+                except_file[key] = value
+            except_files[file] = except_file
+        infile.close()
+        return except_files
 
 
 def invokeBIRD(columns, indexToName, ti_list):
@@ -149,8 +161,8 @@ def invokeBIRD(columns, indexToName, ti_list):
         # if bird id isn't in the bird dictionary...
         else:
             # assign contents to BIRD class property names
-            sex = columns[indexToName[2]][i] 
-            treatment = columns[indexToName[1]][i]
+            sex = columns[indexToName[1]][i] 
+            treatment = columns[indexToName[2]][i]
             tissues = bird_tissue_dicts[b]
             # invoke BIRD class to make bird objects
             bird[b] = c.BIRD(i=b, s=sex, tr=treatment, ti=tissues)
@@ -186,11 +198,11 @@ def invokeTISSUE(columns, indexToName, nutri_list):
         # assign contents to TISSUE class property names
         bird_id = columns[indexToName[0]][i]
         tissue_type = columns[indexToName[3]][i]
-        mass_sample = columns[indexToName[8]][i]
-        mass_total = columns[indexToName[9]][i]
+        mass_sample = columns[indexToName[4]][i]
+        mass_total = columns[indexToName[5]][i]
         nutri = nutri_list[i]
         # make tissue objects for each row in the bird id column
-        tissue_obj = c.TISSUE(n=tissue_type, ms=mass_sample, mt=mass_total, b=bird_id, nutri=nutri)
+        tissue_obj = c.TISSUE(n=tissue_type, ms=mass_sample, mt=mass_total, b=bird_id, nutri_a=nutri)
         # add each tissue object to the list of tissue objects
         ti_list.append(tissue_obj)
         i += 1
@@ -210,25 +222,19 @@ def getNutrients(columns, indexToName):
     individual (bird). each dictionary has a key corresponding to the nutrient 
     name (e.g. lutein) and a value corresponding to the area of that nutrient 
     from the raw data file (i.e. HPLC output).
-    
-    Note to self: make for loop into while loop to generalize this part so it 
-    doesn't have to have a fixed number of columns
     """
-    # make new list of nutrient dictionaries 
     nutri_list = []
-    i = 0
-    # iterate through rows in bird id column
+    i_b = 0
     for b in columns[indexToName[0]]:
-        # make new dictionary of nutrients for each row in bird id column (each tissue for each bird)
         nutrients = {}
-        # add all nutrient areas to the nutrients dictionary by name of nutrients
-        nutrients[indexToName[4]] = columns[indexToName[4]][i]
-        nutrients[indexToName[5]] = columns[indexToName[5]][i]
-        nutrients[indexToName[6]] = columns[indexToName[6]][i]
-        nutrients[indexToName[7]] = columns[indexToName[7]][i]
-        # add dictionaries of nutrients (nutrient profiles in areas for each tissue in each bird) to list of nutrient dictionaries
+        for index,name in indexToName.items():
+            if index == 0 or index == 1 or index == 2 or index == 3 or index == 4 or index == 5:
+                pass
+            else:
+                nutrients[name] = columns[name][i_b]
         nutri_list.append(nutrients)
-        i += 1
+        i_b += 1
     return nutri_list
+        
 
 
