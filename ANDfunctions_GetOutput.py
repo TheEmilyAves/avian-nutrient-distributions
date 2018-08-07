@@ -40,7 +40,23 @@ def getOutput_p(bird):
     return col_birdid, col_sex, col_treatment, col_tissuetype, col_tip, col_mt
 
 
-def colToRow(col0, col1, col2, col3, col4, col5):
+def getOutput_conc(bird):
+    col_birdid = []
+    col_sex = []
+    col_treatment = []
+    col_tissuetype = []
+    col_conc = []
+    for bird_id,bird_obj in bird.items():
+        for tissue_type,tissue_obj in bird_obj.tissues.items():
+            col_birdid.append(bird_id)
+            col_sex.append(bird_obj.sex)
+            col_treatment.append(bird_obj.treatment)
+            col_tissuetype.append(tissue_type)
+            col_conc.append(bird_obj.carot_conc[tissue_type])
+    return col_birdid, col_sex, col_treatment, col_tissuetype, col_conc
+
+
+def colToRow(col0, col1, col2, col3, col4):
     list_rows = []
     c = 0
     for i in col0:
@@ -50,7 +66,6 @@ def colToRow(col0, col1, col2, col3, col4, col5):
         row.append(col2[c])
         row.append(col3[c])
         row.append(col4[c])
-        row.append(col5[c])
         list_rows.append(row)
         c += 1
     return list_rows
