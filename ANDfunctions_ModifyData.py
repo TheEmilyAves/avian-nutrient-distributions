@@ -161,7 +161,7 @@ def calcCarotConc(bird):
         carot_conc = {}
         for tissue_type, tissue_obj in bird_obj.tissues.items():
             key = tissue_type
-            value = tissue_obj.total_carot / tissue_obj.mass_total
+            value = float(tissue_obj.total_carot) / float(tissue_obj.mass_total)
             carot_conc[key] = value
         setattr(bird_obj, "carot_conc", carot_conc)
 
