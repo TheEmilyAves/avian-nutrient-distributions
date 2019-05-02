@@ -163,9 +163,10 @@ def invokeBIRD(columns, indexToName, ti_list):
             # assign contents to BIRD class property names
             sex = columns[indexToName[1]][i] 
             treatment = columns[indexToName[2]][i]
+            bodymass = columns[indexToName[6]][i]
             tissues = bird_tissue_dicts[b]
             # invoke BIRD class to make bird objects
-            bird[b] = c.BIRD(i=b, s=sex, tr=treatment, ti=tissues)
+            bird[b] = c.BIRD(i=b, s=sex, tr=treatment, bm=bodymass, ti=tissues)
             i += 1
     return bird
 
@@ -228,7 +229,7 @@ def getNutrients(columns, indexToName):
     for b in columns[indexToName[0]]:
         nutrients = {}
         for index,name in indexToName.items():
-            if index == 0 or index == 1 or index == 2 or index == 3 or index == 4 or index == 5:
+            if index == 0 or index == 1 or index == 2 or index == 3 or index == 4 or index == 5 or index == 6:
                 pass
             else:
                 nutrients[name] = columns[name][i_b]
