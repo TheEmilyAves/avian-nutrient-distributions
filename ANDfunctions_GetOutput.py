@@ -5,6 +5,7 @@ Functions used to generate output files for the Avian Nutrient Distributions Pro
 # import modules
 import csv
 
+
 def getCol(bird):
     col_birdid = []
     col_sex = []
@@ -16,6 +17,7 @@ def getCol(bird):
     col_conc = []
     col_tc = []
     col_tbc = []
+    cols_carot = {}
     for bird_id,bird_obj in bird.items():
         for tissue_type,tissue_obj in bird_obj.tissues.items():
             col_birdid.append(bird_id)
@@ -28,26 +30,46 @@ def getCol(bird):
             col_conc.append(bird_obj.carot_conc[tissue_type])
             col_tc.append(tissue_obj.total_carot)
             col_tbc.append(bird_obj.totalbodycarot)
-    return col_birdid, col_sex, col_treatment, col_tissuetype, col_mt, col_tip, col_rp, col_conc, col_tc, col_tbc
+        for tissue,nutrients in bird_obj.carot_conc_ind.items():
+            for nutrient_type,carot_conc in nutrients.items():
+                if nutrient_type in cols_carot:
+                    cols_carot[nutrient_type].append(carot_conc)
+                else:
+                    value = []
+                    value.append(carot_conc)
+                    cols_carot[nutrient_type] = value
+    return col_birdid, col_sex, col_treatment, col_tissuetype, col_mt, col_tip, col_rp, col_conc, col_tc, col_tbc, cols_carot
 
 
-def colToRow(col0, col1, col2, col3, col4, col5, col6, col7, col8, col9):
+# this function currently doesn't work, but I want to try and make it work 
+# eventually - the point of it is to do what colToRow currently does but without 
+# fixing the last column as cols_carot
+def colToRow1(cols):
     list_rows = []
-    c = 0
-    for i in col0:
+    for i in cols[0]:
         row = []
-        row.append(col0[c])
-        row.append(col1[c])
-        row.append(col2[c])
-        row.append(col3[c])
-        row.append(col4[c])
-        row.append(col5[c])
-        row.append(col6[c])
-        row.append(col7[c])
-        row.append(col8[c])
-        row.append(col9[c])
+        for n,col in enumerate(cols):
+            if isinstance(col, list):
+                row.append(col[n])
+            else:
+                for nutrient_type,carot_conc in col.items():
+                    row.append(carot_conc)
         list_rows.append(row)
-        c += 1
+    return list_rows
+
+
+# allows n=10 (cols_carot) from getCol1 function to be "unpacked"
+def colToRow(cols):
+    list_rows = []
+    for i,r in enumerate(cols[0]):
+        row = []
+        for n,col in enumerate(cols):
+            if n == 10:
+                for nutrient_type,carot_conc in col.items():
+                    row.append(carot_conc[i])
+            else:
+                row.append(col[i])
+        list_rows.append(row)
     return list_rows
 
 
