@@ -24,6 +24,10 @@ def convertCarot(bird, alt_calc=False, list_except=None, except_files=None):
                 # if nutrient was not detectable
                 if nutrient_area == "nd": 
                     value = 0
+                # if nutrient was detectable but area was less than 5
+                elif nutrient_area == "d":
+                    # convert area into minimum detectable carotenoid amount
+                    value = calcCarot(tissue_obj, area=5)
                 # if nutrient has a detectable area from HPLC
                 else: 
                     nutrient_area = eval(nutrient_area)
@@ -122,7 +126,13 @@ def calcProp(bird):
         tissue_p = {}
         for tissue_type, tissue_obj in bird_obj.tissues.items():
             key = tissue_type
-            value = tissue_obj.total_carot / bird_obj.totalbodycarot
+            # if running this code with one tissue and some have no detectable 
+            # carotenoids, this will prevent an error from popping up due to 
+            # attempting to divide 0 with 0
+            if bird_obj.totalbodycarot == 0:
+                value = 0
+            else:
+                value = tissue_obj.total_carot / bird_obj.totalbodycarot
             tissue_p[key] = value
         setattr(bird_obj, "tissue_p", tissue_p)
 
@@ -135,7 +145,7 @@ def calcTissueRatio(bird):
         tissue_r = {}
         for tissue_type, tissue_obj in bird_obj.tissues.items():
             key = tissue_type
-            value = tissue_obj.mass_total / bird_obj.bodymass
+            value = float(tissue_obj.mass_total) / float(bird_obj.bodymass)
             tissue_r[key] = value
         setattr(bird_obj, "tissue_r", tissue_r)
 
@@ -166,6 +176,19 @@ def calcCarotConc(bird):
         setattr(bird_obj, "carot_conc", carot_conc)
 
 
-
+def calcCarotConcInd(bird):
+    """
+    Calculates concentration of individual carotenoid peaks in each tissue.
+    """
+    for bird_id,bird_obj in bird.items():
+        carot_conc_ind = {}
+        for tissue_type, tissue_obj in bird_obj.tissues.items():
+            key = tissue_type
+            value = {}
+            for nutrient_type, nutrient_ug in tissue_obj.nutrients_ug.items():
+                carot_conc = float(nutrient_ug) / float(tissue_obj.mass_total)
+                value[nutrient_type] = carot_conc
+            carot_conc_ind[key] = value
+        setattr(bird_obj, "carot_conc_ind", carot_conc_ind)
 
 
