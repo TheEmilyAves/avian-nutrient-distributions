@@ -19,8 +19,11 @@ Column 7+ - area outputs from HPLC for each peak representing a carotenoid type,
 Sample headers and data:
 
 id    sex     treatment   tissue_type   mass_sample    mass_total   bodymass    lutein    zeaxanthin
+
 5517  male    control     spleen        0.024          0.024        12.3        10        9
+
 5510  female  treatment   spleen        0.052          0.052        13          45        30
+
 6242  female  control     spleen        0.004          0.004        11.6        22        11
 
 Run the ANDmain.py file, and it will ask you for input:
