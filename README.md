@@ -8,12 +8,12 @@ It takes a .csv file with bird-related experiment information (e.g. sex, treatme
 
 Your input file should be a .csv file containing 8+ columns of data:
 Column 0 - identification codes for individuals in your dataset
-Column 1 - sex of individuals in your dataset
-Column 2 - group individuals belong to (e.g. treatment group)
-Column 3 - type of tissue analyzed
-Column 4 - mass of the sample analyzed
-Column 5 - total mass of tissue, only different from Column 4 if part of the tissue was analyzed instead of the whole
-Column 6 - body mass of the individual
+Column 1 - sex of individuals in your dataset;
+Column 2 - group individuals belong to (e.g. treatment group);
+Column 3 - type of tissue analyzed;
+Column 4 - mass of the sample analyzed;
+Column 5 - total mass of tissue, only different from Column 4 if part of the tissue was analyzed instead of the whole;
+Column 6 - body mass of the individual;
 Column 7+ - area outputs from HPLC for each peak representing a carotenoid type, number of these columns is flexible
 
 Sample headers and data:
@@ -28,17 +28,17 @@ Run the ANDmain.py file, and it will ask you for input:
 * Name of output file - make sure to include .csv at end
 * Exceptions? - for this, say no (this code is not easily usable by others if you say yes)
 
-It should output a .csv file with the following columns:
-Column 0 - identification codes for individuals in your dataset
-Column 1 - sex of individuals in your dataset
-Column 2 - group individuals belong to (e.g. treatment group)
-Column 3 - type of tissue analyzed
-Column 4 - total mass of tissue
-Column 5 - proportion of all carotenoids in a tissue out of total carotenoids in all tissues measured
-Column 6 - relative proportion of caroteonids in a tissue with respect to the tissue mass / body mass ratio
-Column 7 - concentration of all carotenoids in each tissue
-Column 8 - total amount of carotenoids in each tissue
-Column 9 - total carotenoids in all tissues in input file (same as Column 8 if only processing one tissue type)
+It should output a .csv file using the name you gave as input with the following columns:
+Column 0 - identification codes for individuals in your dataset;
+Column 1 - sex of individuals in your dataset;
+Column 2 - group individuals belong to (e.g. treatment group);
+Column 3 - type of tissue analyzed;
+Column 4 - total mass of tissue;
+Column 5 - proportion of all carotenoids in a tissue out of total carotenoids in all tissues measured;
+Column 6 - relative proportion of caroteonids in a tissue with respect to the tissue mass / body mass ratio;
+Column 7 - concentration of all carotenoids in each tissue;
+Column 8 - total amount of carotenoids in each tissue;
+Column 9 - total carotenoids in all tissues in input file (same as Column 8 if only processing one tissue type);
 Column 10+ - concentration of each caroteonid peak (i.e. type) in separate columns
 
 ## Prerequisites
