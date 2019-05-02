@@ -10,7 +10,7 @@ import ANDfunctions_GetOutput as geou
 
 # main function
 def main():
-    headers = "bird.id","sex","treatment","tissue.type","p.total.carot","total.tissue.mass"
+    headers = "bird.id","sex","treatment","tissue.type","total.carot","total.tissue.mass"
     # get input from user
     infile_name, outfile_name, alt_calc, list_except = stda.getInput()
     print("successfully got input")
@@ -30,7 +30,7 @@ def main():
     moda.calcProp(bird)
     print("finished calculations")
     # get output data and write output file
-    col0, col1, col2, col3, col4, col5 = geou.getOutput_p(bird)
+    col0, col1, col2, col3, col4, col5 = geou.getOutput_tc(bird)
     list_rows = geou.colToRow(col0, col1, col2, col3, col4, col5)
     geou.writeOutput(outfile_name, list_rows, headers)
     print("done")
