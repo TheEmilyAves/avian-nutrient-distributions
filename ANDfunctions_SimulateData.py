@@ -23,6 +23,9 @@ To do:
         true or not)
         -all same sex (male)
         -mass sample and mass total are the same for all tissues
+        -simplest carotenoid profile (lutein and zeaxanthin only) with differences
+        only in total amount by tissue or proportion of lutein vs. zeaxanthin and 
+        all tissues except tidiff are plasma-like
 
 Might have to take top down approach for this one...because we're starting with
 individual level factors and generating nutrients based on that.
@@ -49,6 +52,19 @@ import ANDclasses as c
 alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", 
             "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
+# global variable for possible nutrient types
+possnutri = ["lutein", "zeaxanthin"]
+
+# global variable for tissue mass mu, sigma
+# based on fall 2017 male house finches
+tissue_masses = {"brain" : (0.78,0.07), 
+                 "heart" : (0.27,0.03), 
+                 "kidney" : (0.13,0.02), 
+                 "liver" : (0.45,0.1), 
+                 "lung" : (0.24, 0.04), 
+                 "muscle" : (3.01,0.4), 
+                 "spleen" : (0.017,0.009)}
+
 
 def simBIRD(parainput):
     """ 
@@ -65,7 +81,7 @@ def simBIRD(parainput):
         birdnumbers.append(n + 1)
     # generate list of group letters for each birdid
     for g in range(int(parainput["ngroup"])):
-        birdletters = list(alphabet[g]) * int(parainput["nbird"])
+        birdletters = list(alphabet[g + 1]) * int(parainput["nbird"])
     # merge letters and numbers to form birdids!
     birdids = [i + j for i, j in zip(str(birdletters), str(birdnumbers))]
     # generate sex data for BIRD init
@@ -104,14 +120,9 @@ def simBIRD(parainput):
     # and dictionaries of tissue types with empty values
 
 
-def simTISSUE(bird):
+def simTISSUE(bird, parainput):
     """
     Similar to invokeTISSUE but with simulated data
-    
-    Maybe have this call simNutrients?
-    
-    iterate through bird objs and add values to tissue dictionaries
-    values should be lists of 
     
     to invoke TISSUE, need id, tissue type, mass sample, mass total, and 
     nutrients dict (key = nutrient name, value = carotenoid concentration
@@ -125,7 +136,47 @@ def simTISSUE(bird):
     need to incorporate randomly generating nutrient concentrations for each tissue
     and randomly generating tissue masses for each tissue
     and the boolean values for constanttc and constantcp as well as tidiff
+    
+    might be a simpler solution to have a dictionary of tuples (mu, sigma) for 
+    each tissue type rather than a bunch of if/else statements (but this only 
+    covers total carot for each tissue, what about carotenoid types?)
+    
+    maybe based on total concentration and proportion of each carotenoid type 
+    is calculated based on response to constancp
+    
+    could use random choice function to select group that differs
+    e.g. diff = rand.choice("A", "B")
+    
+    output of this function should be simulated version of carot_conc_ind, 
+    which is a bird_obj dictionary with key = tissue_type and value = 
+    dictionary with key = nutrient_type and value = carot conc
+    
+    I would also like to make tissue_obj and add these to bird_obj
+    
+    start coding as if both statements are true (no diff at all) then edit 
+    later to incorporate other possibilities (one true, one false, both false)
     """
+    carot_conc_ind = {}
+    for bird_id, bird_obj in bird.items():
+        for tissue_type in bird_obj.tissues.key():
+            key1 = tissue_type
+            value1 = {}
+            # for each possible nutrient in these tissues
+            for n in possnutri:
+                # set key in value1 to nutrient type
+                key2 = n
+                value2 = simNutrients(n, tissue_type, parainput)
+                value1[key2] = value2
+            carot_conc_ind[key1] = value1
+            mass_total = simMass(tissue_type)
+            mass_sample = mass_total
+            tissue_obj = c.TISSUE(n = tissue_type, ms = mass_sample, mt = mass_total, b = bird_id)
+            bird_obj.tissues[tissue_type].append(tissue_obj)
+        setattr(bird_obj, "carot_conc_ind", carot_conc_ind)
+        
+    
+    
+    
     for bird_id, bird_obj in bird.items():
         for tissue_type in bird_obj.tissues.keys():
             # plasma, gut, and feathers are excluded for now
@@ -169,7 +220,7 @@ def simTISSUE(bird):
             setattr(tissue_obj, "carot_conc", carot_conc)
 
 
-def simNutrients(mu, sigma):
+def simNutrients(nt, tt, parainput):
     """
     Similar to getNutrients but with simulated data
     :returns nutri_list: list of dictionaries with one for each tissue in each 
@@ -223,6 +274,23 @@ def simNutrients(mu, sigma):
         pass
 
 
+def simMass(tt):
+    """
+    Simulates tissue masses 
+    
+    Currently based on house finch data from fall 2017
+    """
+    for tissue_type, tissue_mass in tissue_masses.items(): 
+        # if the tissue type matches one of the tissues in the list...
+        if tt == tissue_type:
+            mu, sigma = tissue_mass
+            np.random.seed()
+            mass_total = np.random.normal(mu, sigma)
+            return mass_total
+        # do not do anything if there is a tissue that does not match
+        else:
+            pass
+        
 
 
 
