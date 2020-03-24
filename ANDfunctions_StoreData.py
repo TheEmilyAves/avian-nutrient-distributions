@@ -33,23 +33,28 @@ def getInput():
     print()
     outfile_name = input("Enter name of output file: ")
     print()
-    response1 = input("Do you have calculation exceptions? ")
-    if response1.lower() == "no":
+    response1 = input("Are you simulating data? ")
+    if response1.lower() == "yes":
         alt_calc = False
         list_except = None
     else:
-        alt_calc = True
-        print()
-        print("Enter names of exception .txt files (one per line).")
-        print("When you\'re done, just press enter without typing anything.")
-        still_entering = True
-        list_except = list()
-        while still_entering == True:
-            response2 = input("Enter name of exception file: ")
-            if response2 != "":
-                list_except.append(response2)
-            else:
-                still_entering = False
+        response2 = input("Do you have calculation exceptions? ")
+        if response2.lower() == "no":
+            alt_calc = False
+            list_except = None
+        else:
+            alt_calc = True
+            print()
+            print("Enter names of exception .txt files (one per line).")
+            print("When you\'re done, just press enter without typing anything.")
+            still_entering = True
+            list_except = list()
+            while still_entering == True:
+                response3 = input("Enter name of exception file: ")
+                if response3 != "":
+                    list_except.append(response3)
+                else:
+                    still_entering = False
     return my_file, outfile_name, alt_calc, list_except
 
 
@@ -117,6 +122,43 @@ def readExceptions(list_except, alt_calc=False):
             except_files[file] = except_file
         infile.close()
         return except_files
+
+
+def readSimInputs(my_file):
+    infile = open(my_file, "r")
+    parainput = {}
+    # for each line in the file (e.g. ngroup;2)
+    for line in infile:
+        # turn each line into a tuple of left and right side of the ;
+        line_split = line.rstrip("\n").split(";")
+        # for each item in each line (only 2)
+        for i in line_split:
+            # if first item, make this the key
+            if i == line_split[0]:
+                key = i
+            # if second item...
+            else:
+                # ...contains a comma (meaning it should be a list)
+                if "," in line_split[1]:
+                    # split it again by commas to make list and set as value
+                    value = line_split[1].split(",")
+                # ...does not contain a comma
+                else:
+                    # just set as value 
+                    value = line_split[1]
+        # add key and value to parainput dictionary
+        parainput[key] = value
+    # after all lines have been added, return parainput
+    return parainput
+    # parainput is dictionary with ngroup,nbird,whichti,constanttc,constantcp,
+    # tidiff
+    # where ngroup is int of groups being compared, nbird is int of
+    # birds in each group (symmetrical groups only for now), whichti is list
+    # of tissues to be included, constanttc is Boolean for whether the total
+    # amount of carotenoids in each bird/tissue is constant, constantcp is
+    # Boolean for whether the proportion of each carotenoid type across 
+    # tissues is constant even if amount in each tissue changes, tidiff is
+    # list of tissues that are different between groups
 
 
 def invokeBIRD(columns, indexToName, ti_list):
