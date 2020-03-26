@@ -24,6 +24,8 @@ independent of tissue mass or concentration (dependent on tissue mass).
 I think carotenoid allocation is tissue mass dependent, so I'm going to go with that.
 Is there a way of testing that? I think there is, and I think it would be true.
 But I should test it anyway if I want this to be truly based on real data.
+
+Check best practices for when to set random seed when simulating data.
         
 """
 
@@ -47,6 +49,16 @@ tissue_masses = {"brain" : (0.78,0.07),
                  "lung" : (0.24, 0.04), 
                  "muscle" : (3.01,0.4), 
                  "spleen" : (0.017,0.009)}
+
+# global variable for total carot conc mu, sigma
+# based on fall 2017 male house finches
+total_carot_conc = {"brain" : (0.99, 0.44), 
+                    "heart" : (27.13, 8.24),
+                    "kidney" : (26.42, 3.05), 
+                    "liver" : (57.06, 25.35), 
+                    "lung" : (32.70, 6.30), 
+                    "muscle" : (7.17, 1.68), 
+                    "spleen" : (47.04, 8.40)}
 
 
 def simBIRD(parainput):
@@ -125,6 +137,7 @@ def simTISSUE(bird, parainput):
     """
     carot_conc_ind = {}
     for bird_id, bird_obj in bird.items():
+        treatment = bird_obj.treatment
         for tissue_type in bird_obj.tissues.key():
             key1 = tissue_type
             value1 = {}
@@ -132,7 +145,7 @@ def simTISSUE(bird, parainput):
             for n in possnutri:
                 # set key in value1 to nutrient type
                 key2 = n
-                value2 = simNutrients(n, tissue_type, parainput)
+                value2 = simNutrients(n, tissue_type, treatment, parainput)
                 value1[key2] = value2
             carot_conc_ind[key1] = value1
             mass_total = simMass(tissue_type)
@@ -142,7 +155,7 @@ def simTISSUE(bird, parainput):
         setattr(bird_obj, "carot_conc_ind", carot_conc_ind)
 
 
-def simNutrients(nt, tt, parainput):
+def simNutrients(nt, tt, tr, parainput):
     """
     Similar to getNutrients but with simulated data
     
@@ -150,25 +163,68 @@ def simNutrients(nt, tt, parainput):
     to Bool vs. other types of info
     
     check assumption that all nutrients within tissue types are normally distributed
-    """
-    # if user wants to keep total carotenoids constant but have groups with
-    # different carotenoid profiles (props of carotenoid types), then...
-    if parainput["constanttc"] == True and parainput["constantcp"] == False:
-        pass
-    # if user wants to keep carotenoid profiles (props of carotenoid types) 
-    # constant but have groups with different total carotenoids, then...
-    if parainput["constanttc"] == False and parainput["constantcp"] == True:
-        pass
-    # if user wants to have groups with different levels of total carotenoids 
-    # and different carotenoid profiles (props of carotenoid types), then...
-    if parainput["constanttc"] == False and parainput["constantcp"] == False:
-        pass
-    # if user wants groups to have the same total carotenoids and carotenoid 
-    # profiles between groups (e.g. if testing for false positives), then...
-    if parainput["constanttc"] == True and parainput["constantcp"] == True:
-        pass
+    
+    will need to generalize code later for more than two groups if needed
+    """    
+    # section 1 - assigning variables
+    # mod_np = nutrient proportion modifier (e.g. 2/3 for lutein in group "A")
+    # mod_ms = mu, sigma modifier (e.g. 1.5 for 50% increase in total carotenoids)
+    
+    # if the current tissue is different between groups AND 
+    # this bird is not a control bird, then...
+    if (tt in parainput["tidiff"]) and (tr != "A"):
+        if parainput["constanttc"] == True:
+            mod_ms = 1
+            if parainput["constantcp"] == True:
+                if nt == "lutein":
+                    mod_np = 2/3
+                elif nt == "zeaxanthin":
+                    mod_np = 1/3
+                else:
+                    pass
+            elif parainput["constantcp"] == False:
+                if nt == "lutein":
+                    mod_np = 1/3
+                elif nt == "zeaxanthin":
+                    mod_np = 2/3
+                else:
+                    pass
+        elif parainput["constanttc"] == False:
+            mod_ms = 1.5
+            if parainput["constantcp"] == True:
+                if nt == "lutein":
+                    mod_np = 2/3
+                elif nt == "zeaxanthin":
+                    mod_np = 1/3
+                else:
+                    pass
+            elif parainput["constantcp"] == False:
+                if nt == "lutein":
+                    mod_np = 1/3
+                elif nt == "zeaxanthin":
+                    mod_np = 2/3
+                else:
+                    pass     
+        else:
+                print("error")
+    # otherwise (if tissue is not different or it is but this is a control bird)...
     else:
-        print("error")
+        mod_ms = 1
+        if nt == "lutein":
+            mod_np = 2/3
+        elif nt == "zeaxanthin":
+            mod_np = 1/3
+        else:
+            pass
+    # section 2 - calculate carot_conc using variables
+    for tissue_type, tissue_carot in total_carot_conc.items():
+        if tt == tissue_type:
+            mu, sigma = tissue_carot * mod_ms
+            np.random.seed()
+            carot_conc = np.random.normal(mu, sigma) * mod_np
+            return carot_conc
+        else:
+            pass
 
 
 def simMass(tt):
