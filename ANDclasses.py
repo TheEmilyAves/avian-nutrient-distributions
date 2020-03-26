@@ -81,7 +81,7 @@ class BIRD:
         bodymass (bm) is a floating point number that represents the mass in 
         grams (g) of an individual bird. used to calculate relative proportions.
         """
-        return self._bodymass
+        return self.__bodymass
     
     
     @bodymass.setter
@@ -93,8 +93,8 @@ class BIRD:
         """
         allows user to print the contents of a BIRD-generated object
         """
-        return "Bird ID = {}, Sex = {}, Treatment = {}, Tissues = {}, Total Body Carotenoids = {}, Body Mass = {}, Tissue Proportions = {}, Tissue Ratios = {}, Relative Proportions = {}"\
-                .format(self.__idbird, self.__sex, self.__treatment, self.__tissues, self.__totalbodycarot, self.__bodymass, self.__tissue_p, self.__tissue_r, self.__relative_p)
+        return "Bird ID = {}, Sex = {}, Treatment = {}, Tissues = {}, Body Mass = {}"\
+                .format(self.__idbird, self.__sex, self.__treatment, self.__tissues, self.__bodymass)
 
 
 
