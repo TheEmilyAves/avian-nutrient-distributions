@@ -197,6 +197,6 @@ class TISSUE:
 
     
     def __str__(self):
-        return "Name = {}, Sample Mass = {}, Total Mass = {}, Bird = {}, Nutrients = {}"\
-                .format(self.__name, self.__mass_sample, self.__mass_total, self.__bird, self.__nutrients)
+        return "Name = {}, Sample Mass = {}, Total Mass = {}, Bird = {}"\
+                .format(self.__name, self.__mass_sample, self.__mass_total, self.__bird)
                 
