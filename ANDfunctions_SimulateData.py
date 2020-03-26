@@ -66,6 +66,11 @@ def simBIRD(parainput):
     Similar to invokeBIRD but with simulated data
     
     Makes dictionary with key=birdid and value=BIRD object
+    
+    because this method creates an empty list and fills it later with a tissue 
+    obj, in order to print an obj (for debugging purposes), you need to add a 
+    [0] to the end to indicate that it is the first (and only) item in the list
+    e.g. bird["A1"].tissues["liver"][0]
     """
     # this entire function needs to be tested
     totalbird = parainput["ngroup"] * parainput["nbird"]  
@@ -135,7 +140,7 @@ def simTISSUE(bird, parainput):
     carot_conc_ind = {}
     for bird_id, bird_obj in bird.items():
         treatment = bird_obj.treatment
-        for tissue_type in bird_obj.tissues.key():
+        for tissue_type, empty_list in bird_obj.tissues.items():
             key1 = tissue_type
             value1 = {}
             # for each possible nutrient in these tissues
@@ -249,7 +254,9 @@ import ANDfunctions_StoreData as sd
 my_file, outfile_name, alt_calc, list_except = sd.getInput()
 parainput = sd.readSimInputs(my_file)
 bird = simBIRD(parainput)
-
+simTISSUE(bird, parainput)
+# output looks good as far as I can tell without printint it into a csv
+# next step is to work on getting output and debug based on what comes out of that
 
 
 
