@@ -68,17 +68,18 @@ def simBIRD(parainput):
     Makes dictionary with key=birdid and value=BIRD object
     """
     # this entire function needs to be tested
-    bird = {}
-    totalbird = int(parainput["ngroup"])*int(parainput["nbird"])  
+    totalbird = parainput["ngroup"] * parainput["nbird"]  
     # generate list of unique numbers for each birdid
     birdnumbers = []
     for n in range(totalbird):
-        birdnumbers.append(n + 1)
+        birdnumbers.append(str(n + 1))
     # generate list of group letters for each birdid
-    for g in range(int(parainput["ngroup"])):
-        birdletters = list(alphabet[g + 1]) * int(parainput["nbird"])
+    birdletters = []
+    for g in range(parainput["ngroup"]):
+        for nb in range(parainput["nbird"]):
+            birdletters.append(alphabet[g])
     # merge letters and numbers to form birdids!
-    birdids = [i + j for i, j in zip(str(birdletters), str(birdnumbers))]
+    birdids = [i + j for i, j in zip(birdletters, birdnumbers)]
     # generate sex data for BIRD init
     sex = ["Male"] * totalbird
     # generate treatment group data for BIRD init (same as birdletters)
@@ -95,18 +96,14 @@ def simBIRD(parainput):
             key2 = t
             value1.setdefault(key2, [])
         bird_tissue_dicts[key1] = value1
-
-        # use this code later to make sure I'm able to add values to these dicts
-            #a.setdefault(key, [])
-            #a[key].append()
-    
     # generate body mass data for BIRD init
     # using average (18.5) and stdev (1.6) of fall 2017 house finches
     # can edit this later to be more flexible
     mu, sigma = 18.5, 1.6
     np.random.seed()
-    bodymass = np.random.normal(mu, sigma, totalbird)
+    bodymass = np.random.normal(mu, sigma, totalbird).round(2)
     i = 0
+    bird = {}
     for b in birdids:
         bird[b] = c.BIRD(i = b, s = sex[i], tr = treatment[i], bm = bodymass[i], ti = bird_tissue_dicts[b])
         i += 1
@@ -245,6 +242,13 @@ def simMass(tt):
             pass
         
 
+### test code zone ###
+
+import ANDfunctions_StoreData as sd
+
+my_file, outfile_name, alt_calc, list_except = sd.getInput()
+parainput = sd.readSimInputs(my_file)
+bird = simBIRD(parainput)
 
 
 
