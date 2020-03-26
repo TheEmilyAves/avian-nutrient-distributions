@@ -149,6 +149,10 @@ def readSimInputs(my_file):
         # add key and value to parainput dictionary
         parainput[key] = value
     # after all lines have been added, return parainput
+    parainput["ngroup"] = int(parainput["ngroup"])
+    parainput["nbird"] = int(parainput["nbird"])
+    parainput["constanttc"] = bool(parainput["constanttc"])
+    parainput["constantcp"] = bool(parainput["constantcp"])
     return parainput
     # parainput is dictionary with ngroup,nbird,whichti,constanttc,constantcp,
     # tidiff
