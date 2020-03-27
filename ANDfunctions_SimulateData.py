@@ -221,7 +221,9 @@ def simNutrients(nt, tt, tr, parainput):
     # section 2 - calculate carot_conc using variables
     for tissue_type, tissue_carot in total_carot_conc.items():
         if tt == tissue_type:
-            mu, sigma = tissue_carot * mod_ms
+            mu, sigma = tissue_carot
+            mu = mu * mod_ms
+            sigma = sigma * mod_ms
             np.random.seed()
             carot_conc = np.random.normal(mu, sigma) * mod_np
             return carot_conc
@@ -250,13 +252,16 @@ def simMass(tt):
 ### test code zone ###
 
 import ANDfunctions_StoreData as sd
+import ANDfunctions_GetOutput as go
 
+headers = ""
 my_file, outfile_name, alt_calc, list_except = sd.getInput()
 parainput = sd.readSimInputs(my_file)
 bird = simBIRD(parainput)
 simTISSUE(bird, parainput)
-# output looks good as far as I can tell without printint it into a csv
-# next step is to work on getting output and debug based on what comes out of that
+cols = go.getSimCol(bird)
+list_rows = go.colToRow(cols)
+go.writeOutput(outfile_name, list_rows, headers)
 
 
 
