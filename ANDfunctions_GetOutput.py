@@ -41,6 +41,33 @@ def getCol(bird):
     return col_birdid, col_sex, col_treatment, col_tissuetype, col_mt, col_tip, col_rp, col_conc, col_tc, col_tbc, cols_carot
 
 
+def getSimCol(bird):
+    col_birdid = []
+    col_sex = []
+    col_treatment = []
+    col_bodymass = []
+    col_tissuetype = []
+    col_mt = []
+    cols_carot = {}
+    for bird_id,bird_obj in bird.items():
+        for tissue_type,tissue_obj in bird_obj.tissues.items():
+            col_birdid.append(bird_id)
+            col_sex.append(bird_obj.sex)
+            col_treatment.append(bird_obj.treatment)
+            col_bodymass.append(bird_obj.bodymass)
+            col_tissuetype.append(tissue_type)
+            col_mt.append(tissue_obj[0].mass_total)
+        for tissue,nutrients in bird_obj.carot_conc_ind.items():
+            for nutrient_type,carot_conc in nutrients.items():
+                if nutrient_type in cols_carot:
+                    cols_carot[nutrient_type].append(carot_conc)
+                else:
+                    value = []
+                    value.append(carot_conc)
+                    cols_carot[nutrient_type] = value
+    return col_birdid, col_sex, col_treatment, col_bodymass, col_tissuetype, col_mt, cols_carot
+
+
 # this function currently doesn't work, but I want to try and make it work 
 # eventually - the point of it is to do what colToRow currently does but without 
 # fixing the last column as cols_carot
@@ -64,7 +91,7 @@ def colToRow(cols):
     for i,r in enumerate(cols[0]):
         row = []
         for n,col in enumerate(cols):
-            if n == 10:
+            if n == 6:
                 for nutrient_type,carot_conc in col.items():
                     row.append(carot_conc[i])
             else:
