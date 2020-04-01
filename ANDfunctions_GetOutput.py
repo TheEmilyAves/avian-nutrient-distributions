@@ -42,6 +42,15 @@ def getCol(bird):
 
 
 def getSimCol(bird):
+    """
+    Convert data stored as BIRD and TISSUE objects into lists of columns. 
+    
+    The index (i) is important, because it allows the correct randomly 
+    generated carotenoid concentration to be selected from a list of possible 
+    values on a per bird basis. See simNutrients function in 
+    ANDfunctions_SimulateData.py file for details.
+    """
+    i = 0
     col_birdid = []
     col_sex = []
     col_treatment = []
@@ -60,11 +69,12 @@ def getSimCol(bird):
         for tissue,nutrients in bird_obj.carot_conc_ind.items():
             for nutrient_type,carot_conc in nutrients.items():
                 if nutrient_type in cols_carot:
-                    cols_carot[nutrient_type].append(carot_conc)
+                    cols_carot[nutrient_type].append(carot_conc[i])
                 else:
                     value = []
-                    value.append(carot_conc)
+                    value.append(carot_conc[i])
                     cols_carot[nutrient_type] = value
+        i += 1
     return col_birdid, col_sex, col_treatment, col_bodymass, col_tissuetype, col_mt, cols_carot
 
 
