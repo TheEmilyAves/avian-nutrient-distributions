@@ -243,6 +243,14 @@ def chooseMods(nt, tt, tr, parainput):
     for tissue_type, tissue_carot in total_carot_conc.items():
         if tt == tissue_type:
             mu, sigma = tissue_carot
+<<<<<<< HEAD
+=======
+            mu = mu * mod_ms
+            sigma = sigma * mod_ms
+            np.random.seed()
+            carot_conc = np.random.normal(mu, sigma) * mod_np
+            return carot_conc
+>>>>>>> d7b75f47858c217cc449e0605cb766338b3f8c52
         else:
             pass    
     return mu, sigma, mod_np, mod_ms
@@ -268,18 +276,26 @@ def simMass(tt):
 import ANDfunctions_StoreData as sd
 import ANDfunctions_GetOutput as go
 
+<<<<<<< HEAD
 np.random.seed()
+=======
+>>>>>>> d7b75f47858c217cc449e0605cb766338b3f8c52
 headers = ""
 my_file, outfile_name, alt_calc, list_except = sd.getInput()
 parainput = sd.readSimInputs(my_file)
 bird = simBIRD(parainput)
+<<<<<<< HEAD
 simTISSUE(bird)
 simNutrients(bird, parainput)
+=======
+simTISSUE(bird, parainput)
+>>>>>>> d7b75f47858c217cc449e0605cb766338b3f8c52
 cols = go.getSimCol(bird)
 list_rows = go.colToRow(cols)
 go.writeOutput(outfile_name, list_rows, headers)
 
 
+<<<<<<< HEAD
 #nt = "lutein"
 #tt = "liver"
 #tr = "B"
@@ -290,6 +306,15 @@ go.writeOutput(outfile_name, list_rows, headers)
 #print("mod ms" + str(mod_ms))
 #for i in x:
 #    print(i)
+=======
+
+
+
+
+
+
+
+>>>>>>> d7b75f47858c217cc449e0605cb766338b3f8c52
 
 
 
